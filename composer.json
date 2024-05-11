@@ -1,0 +1,21 @@
+{
+    "name": "vandmade/cuztomisable",
+    "description": "Customizable dashboard to be used to initialize the structure of a dashboard / portal",
+    "type": "project",
+    "license": "Apache License",
+    "autoload": {
+        "psr-4": {
+            "VanDmade\\Cuztomisable\\": "src/"
+        },
+        "classmap": ["src/"]
+    },
+    "authors": [
+        {
+            "name": "Michael D. VanDerwerker"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.0.1",
+        "illuminate/support": "^11.3"
+    }
+}
