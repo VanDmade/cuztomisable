@@ -63,15 +63,12 @@ export default {
                         error: false,
                     };
                 }
-                setTimeout(() => {
-                    if (data.multi_factor_authentication === true) {
+                if (data.multi_factor_authentication === true) {
+                    setTimeout(() => {
                         // Redirect to the MFA page
                         this.$router.push({ name: 'mfa', params: { token: data.token }});
-                    } else {
-                        // Stores the token and then redirects to the portal
-                        setTimeout(() => this.$router.push({ name: 'portal' }), 1000);
-                    }
-                }, 1500);
+                    }, 1500);
+                }
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;

@@ -79,14 +79,5 @@ export default {
             this.$router.push({ name: 'login', query: { message: message != null ? message : '', type: 'error' } });
         }
     },
-    watch: {
-        '$route.name': {
-            handler: function(name) {
-                if (this.$store.state.authenticated && !this.$route.meta.require_authentication) {
-                    this.$router.push({ name: 'portal' });
-                } 
-            }
-        }
-    }
 }
 </script>

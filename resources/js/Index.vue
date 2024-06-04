@@ -32,6 +32,19 @@ export default {
                 }
             },
             deep: true,
+        },
+        '$route.name': {
+            immediate: true,
+            handler: function(name) {
+                if (this.$store.state.authenticated) {
+                    if (!this.$route.meta.require_authentication) {
+                        this.$router.push({ name: 'portal' });
+                    }
+                } else if (this.$route.meta.require_authentication) {
+                    this.$router.push({ name: 'login' });
+                }
+            },
+            deep: true,
         }
     },
     components: {
