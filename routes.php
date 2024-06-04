@@ -1,10 +1,14 @@
 <?php
 
+use VanDmade\Cuztomisable\Controllers\SettingsController;
 use VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Controllers\RoleController;
 use VanDmade\Cuztomisable\Controllers\UserController;
 
+Route::controller(SettingsController::class)->group(function () {
+    Route::get('/cuztomisable/settings', 'all');
+});
 Route::post('/login', [Authentication\LoginController::class, 'login']);
 Route::controller(Authentication\MFAController::class)->group(function () {
     Route::post('/login/mfa/{token}/send', 'send');
@@ -13,8 +17,9 @@ Route::controller(Authentication\MFAController::class)->group(function () {
 });
 Route::controller(Authentication\PasswordController::class)->group(function () {
     Route::post('/password/forgot', 'forgot');
-    Route::post('/password/forgot/{token}/send', 'send');
+    Route::get('/password/forgot/{token}/send', 'send');
     Route::post('/password/forgot/{token}', 'save');
+    Route::get('/password/forgot/{token}/verify/{code?}', 'verify');
 });
 Route::group(['middleware' => ['auth:sanctum', 'ability:user,admin']], function () {
     Route::controller(UserController::class)->group(function () {

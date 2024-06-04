@@ -10,6 +10,7 @@ use VanDmade\Cuztomisable\Requests\TableRequest;
 use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
+use Carbon\Carbon;
 use DB;
 use Exception;
 
@@ -43,7 +44,7 @@ class MFAController extends Controller
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
             if ($data['type'] == 'phone' && $sendVia['phone']) {
                 $code->sent_at = 'phone';
-                // TODO :: Sends the text message
+                $this->text();
             } else {
                 $code->sent_via = 'email';
                 $this->email(new MFAMail($code), $code->user->email);
@@ -73,14 +74,16 @@ class MFAController extends Controller
             }
             // Makes sure the code hasn't expired
             if (time() > strtotime($code->expires_at)) {
-                throw new Exception(__('cuztomisable/authentication.mfa.errors.expired'), 401);
+                throw new Exception(__('cuztomisable/authentication.mfa.errors.token_has_expired'), 401);
             }
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
             return $this->success([
-                'message' => __(''),
+                'message' => __('cuztomisable/authentication.mfa.verified'),
                 'verified' => true,
                 'email' => $sendVia['email'] || !$sendVia['phone'] ? $code->user->obscuredEmail : null,
                 'phone' => $sendVia['phone'] ? ($code->user->mobilePhone->obscuredNumber ?? null) : null,
+                'sent' => !is_null($code->sent_at),
+                'sent_via' => $code->sent_via ?? null,
             ]);
         } catch (Exception $error) {
             return $this->error($error);
@@ -104,36 +107,36 @@ class MFAController extends Controller
             $code = Users\Code::where('token', '=', $token)
                 ->where('code', '=', $data['code'])
                 ->whereNull('used_at')
-                ->where('expires_at', '>=', date('Y-m-d H:i:s'))
+                //->where('expires_at', '>=', date('Y-m-d H:i:s'))
                 ->whereHas('user')
                 ->first();
             if (!isset($code->id)) {
                 throw new Exception(__('cuztomisable/authentication.mfa.errors.not_found'), 404);
             }
-            if ($data['remember'] == '1') {
-                $ipAddress = $code->ipAddress;
-                if (!isset($ipAddress->id)) {
-                    throw new Exception('', 404);
-                }
-                $ipAddress->remember = true;
-                $ipAddress->remember_until = date('Y-m-d H:i:s', strtotime('+5 minutes'));
-                $ipAddress->save();
-            }
             // Determines the length of time the token will remain active
             $rememberFor = (isset($data['remember']) && $data['remember'] == '1') ||
                 is_null(config('cuztomisable.login.session_length', null)) ?
                     now()->addDays(60) : now()->addSeconds(config('cuztomisable.login.session_length', null));
+            if ($data['remember'] == '1') {
+                $ipAddress = $code->ipAddress;
+                if (!isset($ipAddress->id)) {
+                    throw new Exception(__('cuztomisable/authentication.mfa.errors.ip_address_not_found'), 404);
+                }
+                $ipAddress->remember = true;
+                $ipAddress->remember_until = date('Y-m-d H:i:s', strtotime($rememberFor));
+                $ipAddress->save();
+            }
             // Removes all older tokens for this specific user and IP Address
             $code->user->tokens()
                 ->where('name', '=', $tokenName = $code->user->id.'-'.$code->ipAddress->id.'-token')
                 ->delete();
             // Creates the new token for the user to log in
             $token = $code->user->createToken(
-                    $tokenName, 
-                    [$code->user->admin ? 'admin' : 'user'],
-                    $rememberFor
-                )->plainTextToken;
-            $code->used_at = date('Y-m-d H:i:S');
+                $tokenName, 
+                [$code->user->admin ? 'admin' : 'user'],
+                $rememberFor
+            )->plainTextToken;
+            $code->used_at = date('Y-m-d H:i:s');
             $code->save();
             DB::commit();
             return $this->success([
@@ -145,7 +148,7 @@ class MFAController extends Controller
                     'name' => $code->user->name,
                     'email' => $code->user->email,
                     'phone' => $code->user->mobilePhone->full_phone_number ?? null,
-                    'image' => $code->user->profile->output() ?? null,
+                    'image' => !is_null($code->user->profile) ? $code->user->profile->output() : null,
                 ],
             ]);
         } catch (Exception $error) {

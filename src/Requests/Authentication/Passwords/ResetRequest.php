@@ -15,7 +15,7 @@ class ResetRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => '1',
+            'required' => __('cuztomisable/global.form.required'),
         ];
     }
 

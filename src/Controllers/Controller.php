@@ -27,4 +27,14 @@ class Controller extends BaseController
         return Respondify::debug($parameters);
     }
 
+    public function email($template, $email)
+    {
+
+    }
+
+    public function text()
+    {
+        
+    }
+
 }

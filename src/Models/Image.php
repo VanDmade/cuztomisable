@@ -1,6 +1,6 @@
 <?php
 
-namespace VanDmade\Cuztomisable\Models\Image;
+namespace VanDmade\Cuztomisable\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

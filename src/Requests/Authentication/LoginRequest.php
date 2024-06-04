@@ -15,10 +15,10 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => '1',
-            'email' => '2',
-            'exists' => '3',
-            'in' => '4',
+            'required' => __('cuztomisable/global.form.required'),
+            'email' => __('cuztomisable/global.form.email'),
+            'exists' => __('cuztomisable/global.form.exists'),
+            'in' => __('cuztomisable/global.form.in'),
         ];
     }
 

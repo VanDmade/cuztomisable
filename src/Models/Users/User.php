@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use VanDmade\Cuztomisable\Models\Address;
+use VanDmade\Cuztomisable\Models\Image;
 use VanDmade\Cuztomisable\Models\Phone;
 use Auth;
 use Exception;

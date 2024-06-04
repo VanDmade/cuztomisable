@@ -88,10 +88,10 @@ class LoginController extends Controller
                     ->delete();
                 // Creates the new token for the user to log in
                 $token = $user->createToken(
-                        $tokenName,
-                        [$user->admin ? 'admin' : 'user'],
-                        $rememberFor
-                    )->plainTextToken;
+                    $tokenName,
+                    [$user->admin ? 'admin' : 'user'],
+                    $rememberFor
+                )->plainTextToken;
             }
             // Unsets the attempts / timer
             $user->attempts = 0;
@@ -99,15 +99,15 @@ class LoginController extends Controller
             $user->save();
             DB::commit();
             return $this->success([
-                'message' => __('cuztomisable/authentication.login.logged_in'),
+                'message' => __('cuztomisable/authentication.login.'.($ipAddress->requireMfa() ? 'mfa_' : '').'logged_in'),
                 'token' => $token ?? null,
                 'multi_factor_authentication' => $ipAddress->requireMfa(),
                 'remember' => isset($data['remember']) && $data['remember'] == '1',
                 'user' => [
                     'name' => $user->name,
                     'email' => $user->email,
-                    'phone' => $user->mobilePhone->full_phone_number ?? null,
-                    'image' => $user->profile->output() ?? null,
+                    'phone' => !is_null($user->mobilePhone) ? $user->mobilePhone->full_phone_number : null,
+                    'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);
         } catch (Exception $error) {

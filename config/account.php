@@ -7,9 +7,9 @@ return [
             'phone' => false,
         ],
         // Length of time between each allowed reset attempt in seconds
-        'time_between_allowed_resets' => 900,
+        'time_between_allowed_resets' => 300,
         // Specifies the length of time between allowed resends
-        'resend_after' => 300,
+        'resend_after' => 15,
         // The code is going to be recreated when the code is resent
         'recreate_code_on_resend' => false,
         /* Specifies that the reset code can be sent via phone and/or email.
@@ -20,6 +20,19 @@ return [
         ],
         // The amount of passwords that need to be iterated through before using the same password again
         'reuse_after' => 3,
+        // The requirements for a password
+        'requirements' => [
+            // Minimum allowed characters
+            'min' => 8,
+            // Maximum allowed characters, if null, then there is no maximum
+            'max' => null,
+            // Total special characters (!@#!#$@) that have to be used
+            'special_characters' => 1,
+            // Total amount of numbers that have to be used
+            'numbers' => 1,
+            // Total amount of uppercase characters that have to be used
+            'uppercase_characters' => 1,
+        ],
     ],
     'code' => [
         // Length of all codes sent to users
@@ -56,6 +69,10 @@ return [
         'phone_verification' => [
             'type' => 'phone',
             'view' => 'cuztomisable.emails.authentication.verifications.phone',
+        ],
+        'registration' => [
+            'type' => 'email|phone',
+            'view' => 'cuztomisable.emails.authentication.registration',
         ],
     ],
 ];

@@ -15,8 +15,8 @@ class SendRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => '1',
-            'in' => '4',
+            'required' => __('cuztomisable/global.form.required'),
+            'in' => __('cuztomisable/global.form.in'),
         ];
     }
 

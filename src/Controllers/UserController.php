@@ -25,7 +25,7 @@ class UserController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->mobilePhone->full_phone_number ?? null,
-                    'image' => $user->profile->output() ?? null,
+                    'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);
         } catch (Exception $error) {
@@ -57,15 +57,15 @@ class UserController extends Controller
                     throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
                 }
             }
-            $user->first_name = $data['first_name'],
-            $user->middle_name = $data['middle_name'] ?? null,
-            $user->last_name = $data['last_name'],
-            $user->suffix = $data['suffix'] ?? null,
-            $user->title = $data['title'] ?? null,
-            $user->username = $data['username'] ?? null,
-            $user->email = $data['email'],
-            $user->gender = $data['gender'] ?? null,
-            $user->timezone = $data['timezone'] ?? null,
+            $user->first_name = $data['first_name'];
+            $user->middle_name = $data['middle_name'] ?? null;
+            $user->last_name = $data['last_name'];
+            $user->suffix = $data['suffix'] ?? null;
+            $user->title = $data['title'] ?? null;
+            $user->username = $data['username'] ?? null;
+            $user->email = $data['email'];
+            $user->gender = $data['gender'] ?? null;
+            $user->timezone = $data['timezone'] ?? null;
             $user->save();
             // TODO :: Add in the ability to upload an image
             return $this->success([

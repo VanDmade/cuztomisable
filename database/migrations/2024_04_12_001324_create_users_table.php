@@ -27,12 +27,6 @@ return new class extends Migration
                 ->on('users')
                 ->onUpdate('cascade')
                 ->onDelete('set null');
-            $table->bigInteger('image_id')->unsigned()->nullable();
-            $table->foreign('image_id')
-                ->references('id')
-                ->on('images')
-                ->onUpdate('cascade')
-                ->onDelete('set null');
             $table->string('first_name', 64);
             $table->string('middle_name', 64)->nullable();
             $table->string('last_name', 64);

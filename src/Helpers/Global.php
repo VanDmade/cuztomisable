@@ -13,7 +13,7 @@
 \******************************************************************************/
 function generateCode($length, $salt = 'cuztomisable', $prefix = null)
 {
-    return strtoupper(
+    return strval(strtoupper(
         (is_null($prefix) ? '' : $prefix).
         substr(
             md5($salt.uniqid().time()),
@@ -21,7 +21,7 @@ function generateCode($length, $salt = 'cuztomisable', $prefix = null)
             // Prevents the code from being larger than what is possible for the md5 hash
             $length > 16 ? 16 : ($length < 1 ? 1 : $length)
         )
-    );
+    ));
 }
 
 

@@ -53,6 +53,33 @@ class PasswordController extends Controller
         }
     }
 
+    public function verify($token, $code = null)
+    {
+        try {
+            $reset = Users\Passwords\Reset::where('token', '=', $token)
+                ->whereHas('user')
+                ->whereNull('used_at')
+                ->first();
+            // Makes sure the code exists, hasn't been used, and a user is attached
+            if (!isset($reset->id)) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
+            }
+            // Verifies the reset code has expired
+            if (strtotime($reset->expires_at) < time()) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.expired'), 404);
+            }
+            // If the code is sent in it will verify that the code is correct
+            if (!is_null($code) && $reset->code != $code) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.invalid_code'), 404);
+            }
+            return $this->success([
+                'message' => __('cuztomisable/authentication.passwords.verified'),
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
     public function send($token)
     {
         try {
@@ -63,13 +90,13 @@ class PasswordController extends Controller
                 ->first();
             // Makes sure the code exists, hasn't been used, and a user is attached
             if (!isset($reset->id)) {
-                throw new Exception(__('cuztomisable/authentication.errors.not_found'), 404);
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
             }
             $resendAfter = config('cuztomisable.account.passwords.resend_after', 300);
             $resending = is_null($reset->sent_at) ? false : true;
             // Checks to see if the code was sent recently
             if (!is_null($reset->sent_at) && strtotime('-'.$resendAfter.' seconds') < strtotime($reset->sent_at)) {
-                throw new Exception(__('cuztomisable/authentication.errors.sent_recently'), 401);
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.sent_recently'), 401);
             }
             // Determines if the code needs to be recreated or not
             if (config('cuztomisable.account.passwords.recreate_code_on_resend', false)) {
