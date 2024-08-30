@@ -1,14 +1,15 @@
 <template>
     <div class="form-input">
         <label class="form-label" v-if="label != null">{{ label }}</label>
-        <input
-            :type="type"
+        <select
             v-model="value"
-            class="form-control"
+            class="form-control form-select"
             :class="errorList.length > 0 ? 'is-invalid' : ''"
             :disabled="disabled"
             :placeholder="placeholder"
             @input="errorList = []">
+            <option v-for="(item, itemIndex) in items" :value="item.value">{{ item.text }}</option>        
+        </select>
         <ul v-if="!hideDetails" class="form-errors">
             <li v-for="(error, i) in errorList" :key="'error-'+i" class="form-error">{{ error }}</li>
         </ul>
@@ -42,11 +43,11 @@ export default {
     props: {
         modelValue: { type: [String, Number], default: '' },
         label: { type: String, default: null },
-        type: { type: String, default: 'input' },
         errors: { type: [Array, Object], default: [] },
         disabled: { type: Boolean, default: false },
         placeholder: { type: String, default: '' },
         hideDetails: { type: Boolean, default: false },
+        items: { type: [Array, Object], default: [] },
     }
 }
 </script>

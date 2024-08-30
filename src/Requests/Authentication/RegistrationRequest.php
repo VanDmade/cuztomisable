@@ -15,9 +15,9 @@ class RegistrationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => '1',
-            'email' => '2',
-            'in' => '4',
+            'required' => __('cuztomisable/global.form.required'),
+            'email' => __('cuztomisable/global.form.email'),
+            'in' => __('cuztomisable/global.form.in'),
         ];
     }
 

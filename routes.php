@@ -21,6 +21,9 @@ Route::controller(Authentication\PasswordController::class)->group(function () {
     Route::post('/password/forgot/{token}', 'save');
     Route::get('/password/forgot/{token}/verify/{code?}', 'verify');
 });
+Route::controller(Authentication\RegistrationController::class)->group(function () {
+    Route::post('/register', 'save');
+});
 Route::group(['middleware' => ['auth:sanctum', 'ability:user,admin']], function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('/me', 'get');

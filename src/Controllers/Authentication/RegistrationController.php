@@ -4,13 +4,14 @@ namespace VanDmade\Cuztomisable\Controllers\Authentication;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use VanDmade\Cuztomisable\Requests\Authentication\Registration\RegistrationRequest;
+use VanDmade\Cuztomisable\Requests\Authentication\RegistrationRequest;
 use VanDmade\Cuztomisable\Mail\Users\Verification as VerificationMail;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Phone;
 use VanDmade\Cuztomisable\Models\Users;
 use DB;
 use Exception;
+use Hash;
 
 class RegistrationController extends Controller
 {
@@ -52,10 +53,10 @@ class RegistrationController extends Controller
                 'email' => $data['email'],
                 'password' => $password = Hash::make($data['password']),
                 'gender' => $data['gender'] ?? null,
-                'timezone' => $data['timezone'] ?? null,
+                'timezone' => $data['timezone'] ?? 'EST',
             ]);
             // Creates the instance of a password so the user cannot use the password again
-            Users\Password::create([
+            Users\Passwords\Password::create([
                 'password' => $password,
                 'user_id' => $user->id,
             ]);

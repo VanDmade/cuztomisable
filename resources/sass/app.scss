@@ -1,5 +1,5 @@
 @import "~bootstrap/scss/bootstrap";
-@import "../../variables";
+@import "variables";
 
 $xsmall: 576px;
 $small: 768px;
@@ -265,4 +265,14 @@ html, body {
 @keyframes fadeInAnimation {
     0% { opacity: 0; }
     100% { opacity: 1; }
+}
+.table .actions {
+    text-align: center;
+}
+.table .actions i {
+    color: $primary;
+    padding: 0 8px;
+}
+.table .actions i:hover {
+    cursor: pointer;
 }
