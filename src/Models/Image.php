@@ -2,6 +2,7 @@
 
 namespace VanDmade\Cuztomisable\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -40,9 +41,11 @@ class Image extends Model
         'deleted_by',
     ];
 
+    protected $appends = ['full_url'];
+
     public function output()
     {
-        if (!is_null($this->removed_from_storage)) {
+        if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
         }
         return Storage::disk($this->disk)->url($this->path);
@@ -50,7 +53,7 @@ class Image extends Model
 
     public function temporary($length = '+5 seconds')
     {
-        if (!is_null($this->removed_from_storage)) {
+        if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
         }
         return Storage::disk($this->disk)->temporaryUrl($this->path, $length);
@@ -62,6 +65,14 @@ class Image extends Model
         return Attribute::make(
             get: fn () => $parameters['size'] ?? null
         );
+    }
+
+    public function getFullUrlAttribute()
+    {
+        if (!is_null($this->removed_from_storage_at)) {
+            throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
+        }
+        return Storage::disk($this->disk)->url($this->path);
     }
 
     public function createdFromImage()
