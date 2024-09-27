@@ -1,7 +1,7 @@
 {
     "name": "vandmade/cuztomisable",
     "description": "Customizable dashboard to be used to initialize the structure of a dashboard / portal",
-    "type": "project",
+    "type": "package",
     "license": "Apache License",
     "autoload": {
         "psr-4": {
@@ -13,7 +13,8 @@
     },
     "authors": [
         {
-            "name": "Michael D. VanDerwerker"
+            "name": "Michael VanDerwerker",
+            "email": "michaelvanderwerkerllc@gmail.com"
         }
     ],
     "require": {
