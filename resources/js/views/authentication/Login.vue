@@ -3,8 +3,10 @@
         <div class="auth-card">
             <div class="auth-card__header">
                 <img :src="$url+'logo.png'" class="auth-card__logo">
-                <h1 class="auth-card__title">Log in</h1>
-                <p class="auth-card__subtitle">Welcome back to {{ appName }}</p>
+                <div class="auth-card__header-text">
+                    <h1 class="auth-card__title">Log in</h1>
+                    <p class="auth-card__subtitle">Welcome back to {{ appName }}</p>
+                </div>
             </div>
             <cz-form ref="loginForm" class="auth-card__form" :form="form"
                 @save="login">
@@ -21,10 +23,9 @@
                     type="password"
                     autocomplete="current-password"
                     :errors="errors.password"
-                    :disabled="submitting" />
-                <div class="auth-card__row">
-                    <router-link :to="{ name: 'forgot' }" class="button--link">Forgot password?</router-link>
-                </div>
+                    :disabled="submitting"
+                    :link="{ name: 'forgot' }"
+                    link-text="Forgot password?" />
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Log in</button>
                 </div>

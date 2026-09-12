@@ -7,6 +7,8 @@ return [
     'note_to_nosey' => 'All of these fields are validated in the server, these fields are just for ease of use within the GUI...',
     'server_broken' => 'Hang tight — we hit a snag. Try again shortly, and we\'ll be back on track.',
     'rate_limited' => 'Too many attempts. Please wait a bit before trying again.',
+    'not_found' => 'We couldn\'t find what you were looking for.',
+    'saved' => 'Saved.',
     'timezone' => [
         'updated' => 'Your timezone was updated.',
         'unchanged' => 'Your timezone is already up to date.',

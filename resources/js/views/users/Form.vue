@@ -1,149 +1,133 @@
 <template>
     <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
         <cz-loading :loading="loading || $store.state.loading"></cz-loading>
-        <cz-form v-if="!loading" ref="userForm" :form="form" @save="save">
-            <div class="row mb-4">
-                <div class="col-lg-9 col-md-8 col-sm-12">
-                    <div class="card pa-6 mb-6">
-                        <h5 class="card-title">User Details</h5>
-                        <h6 class="card-subtitle mb-6 text-muted">Basic information and account settings.</h6>
-                        <cz-input
-                            label="Name"
-                            v-model="form.name"
-                            type="text"
-                            :errors="errors.name"
-                            :disabled="submitting" />
-                        <cz-input
-                            v-if="!$cuztomisable.login_with.email && !$cuztomisable.login_with.phone"
-                            label="Username"
-                            v-model="form.username"
-                            type="text"
-                            :errors="errors.username"
-                            :disabled="submitting" />
-                        <cz-input
-                            label="Email"
-                            v-model="form.email"
-                            type="email"
-                            :errors="errors.email"
-                            :disabled="submitting" />
-                        <cz-phone
-                            label="Phone"
-                            v-model="form.phone"
-                            :errors="errors.phone"
-                            :disabled="submitting"
-                            is-mobile
-                            default />
-                    </div>
-                    <div v-if="$cuztomisable.registration.address !== false" class="card pa-6" :class="{ 'mb-6': breakpoint('sm') }">
-                        <h5 class="card-title">Address</h5>
-                        <h6 class="card-subtitle mb-6 text-muted">Primary residence and contact location.</h6>
-                        <cz-address
-                            label="Address"
-                            v-model="form.address"
-                            :errors="errors.address"
-                            :disabled="submitting"
-                            :hasAddressTwo="$cuztomisable.registration.address.address_two"
-                            :hasAddressThree="$cuztomisable.registration.address.address_three" />
+        <template v-if="!loading">
+            <div class="card pa-6 mb-4 cz-user-summary">
+                <cz-image
+                    :src="imageUrl"
+                    alt="User Image"
+                    img-class="cz-image cz-user-summary-image"
+                    v-model="form.image"
+                    uploader />
+                <div class="cz-user-summary-info">
+                    <h5 class="card-title mb-1">{{ form.name || 'New User' }}</h5>
+                    <p class="note mb-0">{{ form.email || form.phone?.number || '—' }}</p>
+                    <div class="cz-user-summary-meta">
+                        <span v-if="form.locked" class="cz-user-badge cz-user-badge--danger">Locked</span>
+                        <span v-if="form.mfa" class="cz-user-badge cz-user-badge--success">MFA Enabled</span>
+                        <span class="note">Member since {{ form.created_at ? formatDate(form.created_at) : '—' }}</span>
+                        <span class="note">Last login: {{ form.last_login_at ? formatDate(form.last_login_at) : 'Never' }}</span>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-4 col-sm-12">
-                    <div class="card pa-6">
-                        <cz-image
-                            :src="imageUrl"
-                            alt="User Image"
-                            img-class="cz-image img-fluid w-100"
-                            v-model="form.image"
-                            uploader />
-                    </div>
+            </div>
+            <div class="cz-tabs mb-4">
+                <button type="button"
+                    class="cz-tab"
+                    :class="{ active: tab === 'details' }"
+                    @click="tab = 'details'">Details<span v-if="detailsDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
+                <button type="button"
+                    v-if="isMineOrHasPermission('reset-user-passwords') || (isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled)"
+                    class="cz-tab"
+                    :class="{ active: tab === 'security' }"
+                    @click="tab = 'security'">Security<span v-if="securityDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
+                <button type="button"
+                    v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
+                    class="cz-tab"
+                    :class="{ active: tab === 'access' }"
+                    @click="tab = 'access'">Access<span v-if="accessDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
+                <button type="button"
+                    v-if="isMineOrHasPermission('view-user-logins')"
+                    class="cz-tab"
+                    :class="{ active: tab === 'logins' }"
+                    @click="tab = 'logins'">Login History</button>
+            </div>
+            <div v-show="tab === 'details'" class="card pa-6">
+                <cz-form ref="userForm" :form="form" @save="save">
+                    <h5 class="card-title">User Details</h5>
+                    <h6 class="card-subtitle mb-6 text-muted">Basic information and account settings.</h6>
+                    <cz-input
+                        label="Name"
+                        v-model="form.name"
+                        type="text"
+                        :errors="errors.name"
+                        :disabled="submitting" />
+                    <cz-input
+                        v-if="!$cuztomisable.login_with.email && !$cuztomisable.login_with.phone"
+                        label="Username"
+                        v-model="form.username"
+                        type="text"
+                        :errors="errors.username"
+                        :disabled="submitting" />
+                    <cz-input
+                        label="Email"
+                        v-model="form.email"
+                        type="email"
+                        :errors="errors.email"
+                        :disabled="submitting" />
+                    <cz-phone
+                        label="Phone"
+                        v-model="form.phone"
+                        :errors="errors.phone"
+                        :disabled="submitting"
+                        is-mobile
+                        default />
+                    <cz-address
+                        v-if="$cuztomisable.registration.address !== false"
+                        label="Address"
+                        v-model="form.address"
+                        :errors="errors.address"
+                        :disabled="submitting"
+                        :hasAddressTwo="$cuztomisable.registration.address.address_two"
+                        :hasAddressThree="$cuztomisable.registration.address.address_three" />
                     <div class="form-buttons">
-                        <button
-                            v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
-                            type="button"
-                            class="button button--secondary button--block mb-2"
-                            @click="$refs.mfaModal.open();"
-                            :disabled="submitting">Multi-Factor Auth</button>
-                        <button
-                            v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
-                            type="button"
-                            class="button button--secondary button--block mb-2"
-                            @click="$refs.securityModal.open();"
-                            :disabled="submitting">Roles & Permissions</button>
-                        <button
-                            v-if="isMineOrHasPermission('reset-user-passwords')"
-                            type="button"
-                            class="button button--secondary button--block mb-2"
-                            @click="$refs.passwordModal.open();"
-                            :disabled="submitting">Change Password</button>
-                        <button
-                            v-if="isMineOrHasPermission('view-user-logins')"
-                            type="button"
-                            class="button button--secondary button--block mb-0"
-                            @click="$refs.recentLoginModal.open();"
-                            :disabled="submitting">Recent Logins</button>
+                        <button v-if="isMineOrHasPermission('manage-users')"
+                            type="submit"
+                            class="button button--primary"
+                            :class="{ 'button--block': breakpoint('sm'), 'mr-4 button-width': !breakpoint('sm') }"
+                            :disabled="submitting">Save Changes</button>
+                        <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }" @click="goBack()" :disabled="submitting">Go Back</button>
                     </div>
-                </div>
+                </cz-form>
             </div>
-            <hr v-if="breakpoint('sm')" class="mb-6">
-            <div class="form-buttons" :class="{ 'mb-6': !breakpoint('sm'), 'mb-2': breakpoint('sm') }">
-                <button v-if="isMineOrHasPermission('manage-users')"
-                    type="submit"
-                    class="button button--primary"
-                    :class="{ 'button--block': breakpoint('sm'), 'mr-4 button-width': !breakpoint('sm') }"
-                    :disabled="submitting">Save Changes</button>
-                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }" @click="goBack()" :disabled="submitting">Go Back</button>
+            <div v-show="tab === 'security'" class="card pa-6">
+                <component
+                    v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
+                    is="user-mfa-form"
+                    v-model="form.mfa"
+                    v-on:message="message"
+                    :user="form?.id"
+                    class="mb-6"></component>
+                <hr v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled && isMineOrHasPermission('reset-user-passwords')" class="mb-6">
+                <component
+                    v-if="isMineOrHasPermission('reset-user-passwords')"
+                    is="user-password-form"
+                    ref="user-password-form"
+                    v-on:message="message"
+                    :user="form?.id"
+                    :admin="$store.state.user?.admin"
+                    :change-password-sent-at="form.change_password_sent_at"></component>
             </div>
-        </cz-form>
-        <cz-modal v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
-            ref="mfaModal"
-            v-on:open="$refs['user-mfa-form'].reset()"
-            modal-width="340px">
-            <component
-                is="user-mfa-form"
-                ref="user-mfa-form"
-                v-on:close="$refs.mfaModal.close();"
-                v-on:message="message"
-                :user="form?.id"></component>
-        </cz-modal>
-        <cz-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
-            ref="securityModal"
-            v-on:open="$refs['user-security-form'].reset()"
-            modal-width="600px">
-            <component
-                is="user-security-form"
-                ref="user-security-form"
-                v-on:close="$refs.securityModal.close();"
-                v-on:message="message"
-                :user="form?.id"></component>
-        </cz-modal>
-        <cz-modal v-if="isMineOrHasPermission('reset-user-passwords')"
-            ref="passwordModal"
-            v-on:open="$refs['user-password-form'].reset()"
-            modal-width="425px">
-            <component
-                is="user-password-form"
-                ref="user-password-form"
-                v-on:close="$refs.passwordModal.close();"
-                v-on:message="message"
-                :user="form?.id"
-                :admin="$store.state.user?.admin"></component>
-        </cz-modal>
-        <cz-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
-            ref="recentLoginModal"
-            v-on:open="$refs['user-login-form']?.reset()"
-            modal-width="575px">
-            <component
-                v-if="form.id"
-                is="user-login-form"
-                ref="user-login-form"
-                v-on:close="$refs.recentLoginModal.close();"
-                v-on:message="message"
-                :user="form?.id"
-                :admin="$store.state.user?.admin"></component>
-        </cz-modal>
+            <div v-show="tab === 'access'" class="card pa-6">
+                <component
+                    v-if="$store.getters.hasPermission('manage-user-roles-permissions') && form.id"
+                    is="user-security-form"
+                    ref="user-security-form"
+                    v-on:message="message"
+                    :user="form?.id"></component>
+            </div>
+            <div v-show="tab === 'logins'" class="card pa-6">
+                <component
+                    v-if="isMineOrHasPermission('view-user-logins') && form.id"
+                    is="user-login-form"
+                    ref="user-login-form"
+                    v-on:message="message"
+                    :user="form?.id"
+                    :admin="$store.state.user?.admin"></component>
+            </div>
+        </template>
     </div>
 </template>
 <script>
-import { ref, computed } from 'vue';
 import Password from './Password.vue';
 import MFA from './MFA.vue';
 import RecentLogin from './RecentLogin.vue';
@@ -154,8 +138,12 @@ export default {
             loading: false,
             submitting: false,
             errors: [],
-            imageUrl: this.$url+'cuztomisable/profile.png',
-            form: {}
+            imageUrl: this.$url+'profile.png',
+            tab: 'details',
+            form: {},
+            // Snapshot of the Details fields right after load, so editing them (without saving)
+            // can be detected and flagged on the tab.
+            detailsSnapshot: null,
         };
     },
     methods: {
@@ -163,6 +151,7 @@ export default {
             let id = this.$route.params.id;
             axios.get(`/user/${id}`).then(({ data }) => {
                 this.form = this.clone(data.user);
+                this.snapshotDetails();
             }).catch((error) => {
 
             }).finally(() => {
@@ -170,6 +159,10 @@ export default {
                     this.loading = false;
                 }, 1000);
             });
+        },
+        snapshotDetails: function() {
+            const { name, username, email, phone, address } = this.form;
+            this.detailsSnapshot = JSON.stringify({ name, username, email, phone, address });
         },
         save: function() {
             let id = this.$route.params.id;
@@ -195,6 +188,7 @@ export default {
             formData = this.cleanFormData(formData);
             axios.post(`/user/${id}`, formData).then(({ data }) => {
                 this.$message.push({ text: data.message });
+                this.snapshotDetails();
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -225,6 +219,7 @@ export default {
                 let id = this.$route.params.id;
                 if (id == '' || typeof(id) == 'undefined') {
                     this.form = user ?? {};
+                    this.snapshotDetails();
                     setTimeout(() => {
                         this.loading = false;
                     }, 1000);
@@ -236,6 +231,21 @@ export default {
         isMineOrHasPermission: function(slug) {
             return this.$store.getters.hasPermission(slug) || typeof(this.$route.params.id) == 'undefined';
         }
+    },
+    computed: {
+        detailsDirty: function() {
+            if (!this.detailsSnapshot) {
+                return false;
+            }
+            const { name, username, email, phone, address } = this.form;
+            return JSON.stringify({ name, username, email, phone, address }) !== this.detailsSnapshot;
+        },
+        securityDirty: function() {
+            return this.$refs['user-password-form']?.dirty ?? false;
+        },
+        accessDirty: function() {
+            return this.$refs['user-security-form']?.dirty ?? false;
+        },
     },
     watch: {
         '$store.state.user': {

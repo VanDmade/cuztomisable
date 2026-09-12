@@ -516,6 +516,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Settings
+    |--------------------------------------------------------------------------
+    | Keys that are admin-editable settings (SettingsController::get()/save(), stored in the
+    | settings table). Add a key here to make it manageable - no new controller, service, or
+    | route needed. Reading a value is always open (whoever it's returned to can see it, e.g.
+    | a cookie banner shown before login); only saving is permission-gated, via a slug of
+    | `settings-{key}` (underscores become hyphens) - add a matching row to PermissionSeeder to
+    | make it assignable to a role, or rely on the manage-settings blanket permission.
+    */
+    'settings' => [
+        'cookie_message',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Organizations (multi-tenancy)
     |--------------------------------------------------------------------------
     | Off by default - users can still belong to organizations and switch between them either

@@ -3,8 +3,10 @@
         <div class="auth-card">
             <div class="auth-card__header">
                 <img :src="$url+'logo.png'" class="auth-card__logo">
-                <h1 class="auth-card__title">Sign Up!</h1>
-                <p class="auth-card__subtitle">We are always welcoming to new users!</p>
+                <div class="auth-card__header-text">
+                    <h1 class="auth-card__title">Sign Up!</h1>
+                    <p class="auth-card__subtitle">We are always welcoming to new users!</p>
+                </div>
             </div>
             <cz-form ref="registrationForm" class="auth-card__form" :form="form"
                 @save="save"

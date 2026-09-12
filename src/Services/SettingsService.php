@@ -2,8 +2,43 @@
 
 namespace VanDmade\Cuztomisable\Services;
 
+use VanDmade\Cuztomisable\Models\Setting;
+
 class SettingsService
 {
+
+    public function get(string $key): array
+    {
+        $setting = Setting::where('key', $key)->first();
+        return ['key' => $key, 'value' => $setting?->value, 'updated_at' => $setting?->updated_at];
+    }
+
+    // Not paginated/sortable via TableService like most admin lists - the rows here come from
+    // config('cuztomisable.settings'), not the settings table (a registered key with no saved
+    // value yet still needs to show up so an admin can set it for the first time).
+    public function list($user): array
+    {
+        return array_map(fn($key) => [
+            ...$this->get($key),
+            'can_manage' => $this->canManage($user, $key),
+        ], config('cuztomisable.settings', []));
+    }
+
+    public function permissionFor(string $key): string
+    {
+        return 'settings-'.str_replace('_', '-', $key);
+    }
+
+    public function canManage($user, string $key): bool
+    {
+        return $user->hasPermission('manage-settings') || $user->hasPermission($this->permissionFor($key));
+    }
+
+    public function save(string $key, string $value): array
+    {
+        $setting = Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+        return ['key' => $key, 'value' => $setting->value, 'updated_at' => $setting->updated_at];
+    }
 
     public function find(): array
     {
@@ -33,6 +68,11 @@ class SettingsService
                 'countries' => config('cuztomisable.locations.countries', []),
                 'default_country_code' => config('cuztomisable.locations.default_country_code', null),
                 'country_codes' => config('cuztomisable.locations.country_codes', []),
+            ],
+            'administrator' => [
+                'temporary_password' => [
+                    'resend_after' => config('cuztomisable.account.administrator.temporary_password.resend_after', 300),
+                ],
             ],
             'registration' => [
                 'disabled' => config('cuztomisable.account.registration.disabled', false),

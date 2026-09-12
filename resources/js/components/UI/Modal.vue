@@ -69,7 +69,7 @@ export default {
         }
     },
     props: {
-        modalWidth: { type: [Number, String], default: '500px' },
+        modalWidth: { type: [Number, String], default: '600px' },
         static: { type: Boolean, default: false }
     }
 }

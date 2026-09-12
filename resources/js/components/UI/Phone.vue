@@ -1,5 +1,5 @@
 <template>
-    <div class="form-floating cz-form-phone"
+    <div class="form-floating cz-form-input cz-form-phone"
         :class="{ 'cz-no-label': label == null || label == '' }">
         <div class="cz-flex-container" v-if="value && typeof value === 'object'">
             <cz-select
@@ -48,9 +48,11 @@
                 :readonly="readonly"
                 hideDetails />
         </div>
-        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
-        </ul>
+        <div v-if="!hideDetails" class="cz-form-input-footer">
+            <ul class="form-errors cz-form-errors mb-2">
+                <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
+            </ul>
+        </div>
     </div>
 </template>
 <script>

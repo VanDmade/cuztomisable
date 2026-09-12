@@ -39,7 +39,7 @@
                     <i v-if="minimized(permission.id)" @click="minimize[permission.id] = false" class="cursor--pointer material-icons">expand_less</i>
                     <i v-else @click="minimize[permission.id] = true" class="cursor--pointer material-icons">expand_more</i>
                 </div>
-                <p v-if="minimized(permission.id)" class="note">{{ permission.subtitle }}</p>
+                <p v-if="minimized(permission.id)" class="note cz-permission-description">{{ permission.subtitle }}</p>
             </div>
             <div class="mt-4">
                 <button type="submit"

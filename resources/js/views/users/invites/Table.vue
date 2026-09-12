@@ -65,7 +65,7 @@
                 </div>
             </template>
         </cz-table>
-        <cz-modal ref="inviteModal" modal-width="425px">
+        <cz-modal ref="inviteModal" modal-width="600px">
             <invite-form v-on:close="$refs.inviteModal.close()" v-on:message="setMessage" v-on:redraw="$refs.inviteTable.query()" />
         </cz-modal>
         <cz-modal ref="deleteInvitationModal" modal-width="380px">

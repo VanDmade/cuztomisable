@@ -37,7 +37,7 @@
                 </div>
             </template>
         </cz-table>
-        <cz-modal ref="permissionModal" modal-width="425px">
+        <cz-modal ref="permissionModal" modal-width="600px">
             <permission-form
                 :id="id"
                 v-on:close="$refs.permissionModal.close()"
@@ -81,11 +81,14 @@ export default {
     },
     methods: {
         form: function(id = null) {
-            // Fixes the issue where the form doesn't reload after closing
             if (id == this.id) {
+                // Forces the watcher to re-fire even though the id itself isn't changing, so
+                // the form reloads instead of showing whatever was left over from last time.
                 this.id = null;
+                setTimeout(() => { this.id = id; }, 50);
+            } else {
+                this.id = id;
             }
-            setTimeout(() => { this.id = id; }, 50);
             this.$refs['permissionModal'].open();
         },
         remove: function() {

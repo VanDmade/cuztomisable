@@ -70,6 +70,11 @@ class PermissionSeeder extends Seeder
                 'slug' => 'manage-terms',
                 'description' => 'Allows uploading and publishing terms & conditions versions, and viewing which users have accepted.',
             ],
+            [
+                'name' => 'Manage Settings',
+                'slug' => 'manage-settings',
+                'description' => 'Blanket access to every admin-editable setting (config/cuztomisable.php\'s "settings" array) - covers a key even if it has no dedicated permission of its own.',
+            ],
         ];
         foreach ($permissions as $permission) {
             Permission::updateOrCreate([

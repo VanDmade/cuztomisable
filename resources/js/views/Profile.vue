@@ -81,7 +81,7 @@ export default {
         return {
             submitting: false,
             errors: [],
-            preview: this.$url+'cuztomisable/profile.png',
+            preview: this.$url+'profile.png',
             user: this.$store.state.user,
             form: {},
         }

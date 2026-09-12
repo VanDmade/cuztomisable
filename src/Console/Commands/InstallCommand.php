@@ -9,6 +9,7 @@ use VanDmade\Cuztomisable\Database\Seeders\AdminUserSeeder;
 use VanDmade\Cuztomisable\Database\Seeders\PermissionSeeder;
 use VanDmade\Cuztomisable\Database\Seeders\RolePermissionSeeder;
 use VanDmade\Cuztomisable\Database\Seeders\RoleSeeder;
+use VanDmade\Cuztomisable\Database\Seeders\SettingsSeeder;
 
 class InstallCommand extends Command
 {
@@ -21,6 +22,7 @@ class InstallCommand extends Command
     {
         $this->publishPackageFiles();
         $this->ensureSessionsTable($files);
+        $this->ensureSanctumMigration($files);
         $this->ensureVariablesScss($files);
         $this->migrateAndSeed();
         // This is the defaults unless the user setup their own environment variables
@@ -42,7 +44,6 @@ class InstallCommand extends Command
             '--force' => true,
         ]) === 0);
         $this->components->task('Publishing pages', fn() => Artisan::call('vendor:publish', ['--tag' => 'cuztomisable-pages']) === 0);
-        $this->components->task('Publishing branding', fn() => Artisan::call('vendor:publish', ['--tag' => 'cuztomisable-branding']) === 0);
     }
 
     protected function ensureSessionsTable(Filesystem $files): void
@@ -54,6 +55,19 @@ class InstallCommand extends Command
         }
         Artisan::call('session:table');
         $this->components->twoColumnDetail('sessions table migration', '<fg=green;options=bold>created</>');
+    }
+
+    protected function ensureSanctumMigration(Filesystem $files): void
+    {
+        // Models\Users\User uses HasApiTokens - without this table, login fails outright, not
+        // just token-based auth for API clients.
+        $exists = collect($files->glob(database_path('migrations/*_create_personal_access_tokens_table.php')))->isNotEmpty();
+        if ($exists) {
+            $this->components->twoColumnDetail('personal_access_tokens table migration', '<fg=yellow>already exists, skipped</>');
+            return;
+        }
+        Artisan::call('vendor:publish', ['--tag' => 'sanctum-migrations']);
+        $this->components->twoColumnDetail('personal_access_tokens table migration', '<fg=green;options=bold>published</>');
     }
 
     protected function ensureVariablesScss(Filesystem $files): void
@@ -76,7 +90,7 @@ class InstallCommand extends Command
     {
         $this->components->task('Running migrations', fn () => Artisan::call('migrate', ['--force' => true]) === 0);
         $this->components->task('Seeding roles, permissions, and default admin', function () {
-            foreach ([RoleSeeder::class, PermissionSeeder::class, RolePermissionSeeder::class, AdminUserSeeder::class] as $seeder) {
+            foreach ([RoleSeeder::class, PermissionSeeder::class, RolePermissionSeeder::class, AdminUserSeeder::class, SettingsSeeder::class] as $seeder) {
                 if (Artisan::call('db:seed', ['--class' => $seeder, '--force' => true]) !== 0) {
                     return false;
                 }

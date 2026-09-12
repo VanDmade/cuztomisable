@@ -22,3 +22,4 @@ Route::get('/users', fn() => Inertia::render('users/Table'))->name('page.users')
 Route::get('/invites', fn() => Inertia::render('users/invites/Table'))->name('page.invites');
 Route::get('/roles', fn() => Inertia::render('roles/Table'))->name('page.roles');
 Route::get('/permissions', fn() => Inertia::render('permissions/Table'))->name('page.permissions');
+Route::get('/settings', fn() => Inertia::render('settings/Table'))->name('page.settings');

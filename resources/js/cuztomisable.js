@@ -24,6 +24,8 @@ import Form from './components/UI/Form.vue';
 import Autofill from './components/UI/Autofill.vue';
 import Modal from './components/UI/Modal.vue';
 import Message from './components/UI/Message.vue';
+import TermsGate from './components/UI/TermsGate.vue';
+import CookieConsent from './components/UI/CookieConsent.vue';
 import notify from './utils/notify';
 import loading from './utils/loading';
 import LoginLayout from './views/layouts/LoginLayout.vue';
@@ -58,6 +60,7 @@ const ROUTES = {
     invites: '/invites',
     roles: '/roles',
     permissions: '/permissions',
+    settings: '/settings',
     message: '/message',
 };
 const ROUTE_META = {
@@ -73,6 +76,7 @@ const ROUTE_META = {
     invites: { authentication: true, permissions: 'invite-users' },
     roles: { authentication: true, permissions: 'manage-roles-permissions' },
     permissions: { authentication: true, permissions: 'manage-roles-permissions' },
+    settings: { authentication: true, permissions: 'manage-settings' },
     message: { authentication: false, layout: 'login-layout' },
 };
 function normalizePath(pathname = '/') {
@@ -115,6 +119,7 @@ function buildPath(name, params = {}) {
         case 'invites': return '/invites';
         case 'roles': return '/roles';
         case 'permissions': return '/permissions';
+        case 'settings': return '/settings';
         case 'message': return '/message';
         default: return ROUTES[name] ?? '/';
     }
@@ -172,6 +177,8 @@ function parseRouteFromUrl(url) {
         route.name = 'roles';
     } else if (path === '/permissions') {
         route.name = 'permissions';
+    } else if (path === '/settings') {
+        route.name = 'settings';
     } else if (path === '/message') {
         route.name = 'message';
     }
@@ -272,6 +279,8 @@ export async function loadCuztomisableApp() {
             const app = createApp({
                 render: () => h(Fragment, [
                     h(Message),
+                    h(TermsGate),
+                    h(CookieConsent),
                     h(App, props),
                 ]),
             });

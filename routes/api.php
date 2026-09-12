@@ -60,7 +60,12 @@ Route::controller(TermsController::class)->group(function() {
     // Guest-accessible - e.g. a signup page linking to the current terms before an account exists
     Route::get('/terms/current', 'current');
 });
-Route::group(['middleware' => ['auth:sanctum']], function() {
+Route::controller(SettingsController::class)->group(function() {
+    // Guest-accessible when the config for that key marks it public (e.g. cookie_message) -
+    // the controller itself checks auth/permission for anything not marked public.
+    Route::get('/settings/{key}', 'get');
+});
+Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], function() {
     Route::controller(SettingsController::class)->group(function() {
         Route::patch('/settings/timezone', 'updateTimezone');
     });
@@ -168,6 +173,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::patch('/terms/{id}/publish', 'publish')
                 ->middleware('throttler:terms.publish,actor,params=id');
         });
+    });
+    Route::controller(SettingsController::class)->group(function() {
+        Route::get('/settings', 'list');
+        // SettingsRequest::authorize() checks the permission configured for the given key -
+        // any setting registered in cuztomisable.settings goes through this one route.
+        Route::post('/settings', 'save')
+            ->middleware('throttler:settings.save,actor');
     });
     Route::controller(OrganizationController::class)->group(function() {
         Route::get('/organizations', 'list');

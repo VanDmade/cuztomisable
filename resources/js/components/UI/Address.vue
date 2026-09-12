@@ -42,7 +42,8 @@
                         :items="statesOrProvinces"
                         :errors="getError('state_or_province')"
                         @change="clearError('state_or_province')"
-                        :disabled="disabled"></cz-select>
+                        :disabled="disabled"
+                        :auto-select-first="false"></cz-select>
                 </div>
                 <div class="col col-md-6 col-12">
                     <cz-input

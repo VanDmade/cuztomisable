@@ -47,6 +47,14 @@
                     data-tooltip="Permissions">
                     <span class="material-icons" aria-hidden="true">verified_user</span>
                 </router-link>
+                <router-link
+                    v-if="$store.getters.hasPermission('manage-settings')"
+                    :to="{ name: 'settings' }"
+                    class="sidebar-link"
+                    :class="{ 'sidebar-link--active': $route.name === 'settings' }"
+                    data-tooltip="Settings">
+                    <span class="material-icons" aria-hidden="true">settings</span>
+                </router-link>
             </template>
         </nav>
     </aside>

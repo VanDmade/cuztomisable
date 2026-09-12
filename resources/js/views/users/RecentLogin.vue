@@ -1,6 +1,6 @@
 <template>
     <div id="recent-login-form">
-        <cz-table :headers="headers" :url="url" ref="userTable" disable-search wait>
+        <cz-table :headers="headers" :url="url" ref="userTable" disable-search>
             <template #header>
                 <h3 class="card-title">Recent Login History</h3>
                 <h6 class="card-subtitle mb-0 text-muted">See when and where this account was last accessed.</h6>

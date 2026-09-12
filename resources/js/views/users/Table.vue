@@ -27,7 +27,7 @@
                 </div>
             </template>
             <template #status="item">
-                <div class="cz-table-data enabled-overflow" :class="{ 'text-center': !breakpoint('sm') }" style="cursor: help;">
+                <div class="cz-table-data enabled-overflow text-start" style="cursor: help;">
                     <span v-if="item.admin" class="tooltip-wrapper ml-1 mr-1">
                         <i class="material-icons">admin_panel_settings</i>
                         <span class="tooltip-text">Admin</span>

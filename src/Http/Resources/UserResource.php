@@ -25,6 +25,10 @@ class UserResource extends JsonResource
             'address' => $this->defaultAddress,
             'mfa' => $this->multi_factor_authentication ?? false,
             'image' => !is_null($this->profile) ? $this->profile->output() : null,
+            'locked' => $this->locked ?? false,
+            'created_at' => $this->created_at,
+            'last_login_at' => $this->lastIpAddress?->last_used_at,
+            'change_password_sent_at' => $this->change_password_sent_at,
         ];
     }
 

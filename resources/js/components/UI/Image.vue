@@ -143,7 +143,7 @@ export default {
     props: {
         modelValue: { type: [File, Object, String], default: '' },
         src: { type: String, required: true },
-        default: { type: String, default: 'cuztomisable/profile.png' },
+        default: { type: String, default: 'profile.png' },
         alt: { type: String, default: '' },
         imgClass: { type: String, default: '' },
         uploader: { type: Boolean, default: false },

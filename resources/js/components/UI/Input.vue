@@ -3,12 +3,13 @@
         :class="{ 'form-floating': label != null && label != '', 'cz-no-label': label == null || label == '', 'cz-color-input': type == 'color' }">
         <input
             v-model="value"
-            :type="type == 'number' ? 'input' : type"
+            :type="effectiveType"
             :id="id"
             class="form-control cz-form-control"
             :class="[{
                 'is-invalid': errorList.length > 0,
                 'empty': value === '' || value === null || value === undefined,
+                'cz-form-control--has-toggle': type == 'password',
             }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
@@ -16,10 +17,21 @@
             :maxlength="max != null ? max : 1000000"
             :autocomplete="autocomplete"
             @input="errorList = []">
+        <button
+            v-if="type == 'password'"
+            type="button"
+            class="cz-form-input-toggle"
+            tabindex="-1"
+            @click="showPassword = !showPassword">
+            <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+        </button>
         <label v-if="label != null && label != ''" :for="id" class="cz-form-label">{{ label }}</label>
-        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
-        </ul>
+        <div v-if="!hideDetails || link" class="cz-form-input-footer">
+            <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+                <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
+            </ul>
+            <router-link v-if="link" :to="link" class="cz-form-input-link button--link">{{ linkText }}</router-link>
+        </div>
     </div>
 </template>
 <script>
@@ -28,6 +40,7 @@ export default {
         return {
             id: 'cz-input_'+Math.random().toString(16).slice(2),
             errorList: [],
+            showPassword: false,
         }
     },
     methods: {
@@ -47,6 +60,12 @@ export default {
         }
     },
     computed: {
+        effectiveType: function() {
+            if (this.type == 'password') {
+                return this.showPassword ? 'text' : 'password';
+            }
+            return this.type == 'number' ? 'input' : this.type;
+        },
         value: {
             get: function () {
                 return this.formatValue(this.modelValue);
@@ -84,6 +103,8 @@ export default {
         format: { type: String, default: null },
         hideDetails: { type: Boolean, default: false },
         max: { type: [String, Number], default: null },
+        link: { type: [String, Object], default: null },
+        linkText: { type: String, default: '' },
     }
 }
 </script>

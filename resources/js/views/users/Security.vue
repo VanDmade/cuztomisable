@@ -34,20 +34,9 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col col-md-6 col-12">
-                    <button type="submit"
-                        @click="submitAction = 'change'"
-                        class="button button--primary button--block mb-0"
-                        :disabled="submitting">Change</button>
-                </div>
-                <div class="col col-md-6 col-12">
-                    <button type="button"
-                        class="button button--secondary button--block mb-0"
-                        :disabled="submitting"
-                        @click="close">Nevermind</button>
-                </div>
-            </div>
+            <button type="submit"
+                class="button button--primary"
+                :disabled="submitting">Save Access</button>
         </cz-form>
     </div>
 </template>
@@ -63,6 +52,7 @@ export default {
                 roles: [],
                 permissions: [],
             },
+            snapshot: null,
         };
     },
     created: function() {
@@ -73,7 +63,7 @@ export default {
         ]).then(axios.spread((roleResponse, permissionResponse) => {
             this.roles = roleResponse.data.list;
             this.permissions = permissionResponse.data.list;
-            this.loading = false;
+            this.get();
         }));
     },
     methods: {
@@ -84,8 +74,9 @@ export default {
         get: function() {
             axios.get(`/user/${this.user}/access`).then(({ data }) => {
                 this.form = data.access;
+                this.snapshot = JSON.stringify(this.form);
             }).catch((error) => {
-                
+
             }).finally(() => {
                 setTimeout(() => {
                     this.loading = false;
@@ -99,9 +90,7 @@ export default {
             formData = this.appendIndexedValues(formData, this.form.permissions, 'permissions');
             axios.post(`/user/${this.user}/access`, this.cleanFormData(formData)).then(({ data }) => {
                 this.$message.push({ text: data.message });
-                setTimeout(() => {
-                    this.close();
-                }, 500);
+                this.snapshot = JSON.stringify(this.form);
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -114,9 +103,6 @@ export default {
                     this.submitting = false;
                 }, 1500);
             });
-        },
-        close: function() {
-            this.$emit('close');
         },
         getRoles: function() {
             return axios.get('/list/roles?include_permissions');
@@ -139,7 +125,10 @@ export default {
             set: function (value) {
                 this.$emit('update:modelValue', value);
             }
-        }
+        },
+        dirty: function() {
+            return this.snapshot !== null && JSON.stringify(this.form) !== this.snapshot;
+        },
     },
     watch: {
         'form.roles': {

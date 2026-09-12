@@ -3,8 +3,10 @@
         <div class="auth-card">
             <div class="auth-card__header">
                 <img :src="$url+'logo.png'" class="auth-card__logo">
-                <h1 class="auth-card__title">Forgot Password</h1>
-                <p class="auth-card__subtitle">Enter the email address associated with your account</p>
+                <div class="auth-card__header-text">
+                    <h1 class="auth-card__title">Forgot Password</h1>
+                    <p class="auth-card__subtitle">Enter the email address associated with your account</p>
+                </div>
             </div>
             <cz-form ref="forgotForm" class="auth-card__form" :form="form"
                 @save="save">

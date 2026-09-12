@@ -1,17 +1,21 @@
 <template>
     <div id="mfa-form">
-        <h3 class="card-title">Multi-Factor Auth</h3>
-        <h6 class="card-subtitle mb-6 text-muted">Add two-step verification for extra security.</h6>
-        <button v-if="!value"
-            type="button"
-            class="button button--primary button--block mb-0"
-            :disabled="submitting"
-            @click="toggle(true)">Enable</button>
-        <button v-else
-            type="button"
-            class="button button--danger button--block mb-0"
-            :disabled="submitting"
-            @click="toggle(false)">Disable</button>
+        <div class="cz-mfa-toggle-row">
+            <div>
+                <h3 class="card-title mb-0">Multi-Factor Auth</h3>
+                <h6 class="card-subtitle mb-0 text-muted">Add two-step verification for extra security.</h6>
+            </div>
+            <div class="form-check form-switch cz-mfa-toggle">
+                <input
+                    id="mfa-toggle"
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    :checked="value"
+                    :disabled="submitting"
+                    @change="toggle(!value)">
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -34,12 +38,7 @@ export default {
             this.submitting = true;
             axios.patch(`/user/${this.user}/mfa`).then(({ data }) => {
                 this.$message.success(data?.message || 'Multi-factor authentication updated successfully.');
-                setTimeout(() => {
-                    this.$emit('close');
-                    setTimeout(() => {
-                        this.value = !this.value;
-                    }, 250);
-                }, 1000);
+                this.value = value;
             }).catch(({ response }) => {
                 if (response?.data?.message) {
                     this.$message.danger(response.data.message);

@@ -4,11 +4,13 @@
         <div class="auth-card">
             <div class="auth-card__header">
                 <img :src="$url+'logo.png'" class="auth-card__logo">
-                <h1 class="auth-card__title">Multi-Factor Authentication</h1>
-                <p class="auth-card__subtitle">
-                    <span v-if="!sent">Enter the email address associated with your account.</span>
-                    <span v-else>The code was sent! Please enter it below once you receive it.</span>
-                </p>
+                <div class="auth-card__header-text">
+                    <h1 class="auth-card__title">Multi-Factor Authentication</h1>
+                    <p class="auth-card__subtitle">
+                        <span v-if="!sent">Enter the email address associated with your account.</span>
+                        <span v-else>The code was sent! Please enter it below once you receive it.</span>
+                    </p>
+                </div>
             </div>
             <cz-form v-if="!sent" ref="mfaSelectForm" class="auth-card__form" :form="form" @save="send">
                 <div class="mfa-email" :class="send_via.phone != null ? 'mb-3' : 'mb-6'" v-if="send_via.email != null">

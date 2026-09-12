@@ -22,12 +22,12 @@
                         }"
                         :width="typeof(header.width) != 'undefined' ? header.width : 'auto'"
                         @click="sort(headerIndex)">
+                        <span class="cz-table-header-text">{{ header.name }}</span>
                         <span class="cz-table-sorter" v-if="typeof(header.sortable) == 'undefined' || header.sortable">
                             <i class="material-icons sort-icon" v-if="header.sort === 'asc'">expand_less</i>
                             <i class="material-icons sort-icon" v-else-if="header.sort === 'desc'">expand_more</i>
                             <i class="material-icons sort-icon cz-table-sort-hover" v-else>unfold_more</i>
                         </span>
-                        <span class="cz-table-header-text">{{ header.name }}</span>
                     </th>
                 </tr>
             </thead>

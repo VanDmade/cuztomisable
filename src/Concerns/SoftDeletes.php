@@ -54,11 +54,6 @@ trait SoftDeletes
             constant(static::class.'::DELETED_BY') : 'deleted_by';
     }
 
-    public function getDeletedAtAttribute(): ?int
-    {
-        return $this->getAttribute($this->getDeletedAtColumn());
-    }
-
     protected function usesDeletedByColumn(): bool
     {
         return Schema::hasColumn($this->getTable(), $this->getDeletedByColumn());

@@ -15,11 +15,15 @@ export default createStore({
             authenticated: false,
             ready: false,
             loading: false,
+            needs_to_accept_terms: false,
         };
     },
     getters: {
         user: function(state) {
             return state.user;
+        },
+        needsToAcceptTerms: function(state) {
+            return state.needs_to_accept_terms;
         },
         permissions: function(state) {
             return state.permissions;
@@ -74,6 +78,9 @@ export default createStore({
         SET_LOADING: function(state, value) {
             state.loading = value;
         },
+        SET_NEEDS_TO_ACCEPT_TERMS: function(state, value) {
+            state.needs_to_accept_terms = value;
+        },
     },
     actions: {
         async checkAuth({ commit, dispatch }) {
@@ -85,6 +92,7 @@ export default createStore({
                 commit('SET_PERMISSIONS', payload.permissions ?? []);
                 commit('SET_CHANGE_PASSWORD', !!payload.change_password);
                 dispatch('performTokenRefresh');
+                dispatch('checkTerms');
             } catch (error) {
                 commit('CLEAR_USER');
             } finally {
@@ -103,8 +111,22 @@ export default createStore({
                 commit('SET_PERMISSIONS', payload.permissions ?? []);
                 commit('SET_CHANGE_PASSWORD', !!payload.change_password);
                 dispatch('startTokenRefresh');
+                dispatch('checkTerms');
             }
             return response;
+        },
+        async checkTerms({ commit }) {
+            try {
+                const response = await axios.get('/terms/status');
+                const payload = response?.data?.data ?? response?.data ?? {};
+                commit('SET_NEEDS_TO_ACCEPT_TERMS', !!payload.needs_to_accept);
+            } catch (error) {
+                // No terms endpoint reachable / nothing published yet - don't block the user over it
+            }
+        },
+        async acceptTerms({ commit }) {
+            await axios.post('/terms/accept');
+            commit('SET_NEEDS_TO_ACCEPT_TERMS', false);
         },
         async logout({ commit, dispatch }) {
             try {

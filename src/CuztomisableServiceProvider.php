@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
 use Inertia\Inertia;
 use VanDmade\Cuztomisable\Console\Commands\InstallCommand;
+use VanDmade\Cuztomisable\Http\Controllers\BrandingController;
 use VanDmade\Cuztomisable\Middleware\CheckPermission;
 use VanDmade\Cuztomisable\Middleware\RequireAdmin;
 use VanDmade\Cuztomisable\Middleware\RequireCurrentTerms;
@@ -48,6 +49,11 @@ class CuztomisableServiceProvider extends ServiceProvider
                 Middleware\EnsureValidMobileAgent::class,
             ])
             ->group(__DIR__.'/../routes/api.php');
+
+        // Served through Laravel (with a long cache lifetime) instead of publishing raw files
+        // into the host's public/ folder - works regardless of whether Inertia is installed.
+        Route::get('/cuztomisable/{filename}', [BrandingController::class, 'show'])
+            ->where('filename', '[A-Za-z0-9_\-\.]+');
 
         // Only if the host installed inertiajs/inertia-laravel themselves - no middleware class
         // of our own, just Inertia's own render() call under the same web-safe middleware the
@@ -92,14 +98,13 @@ class CuztomisableServiceProvider extends ServiceProvider
             __DIR__.'/../resources/js/views' => resource_path('js/views'),
             __DIR__.'/../resources/views/index.blade.php' => resource_path('views/index.blade.php'),
         ];
-        $branding = [
-            __DIR__.'/../images' => public_path('cuztomisable'),
-        ];
+        // No branding publish target - images/ is served straight from the package by
+        // BrandingController (see boot()) instead of being copied into the host's public/
+        // folder as raw, uncached static files.
         $this->publishes([
             __DIR__.'/../config/cuztomisable.php' => config_path('cuztomisable.php'),
             ...$framework,
             ...$pages,
-            ...$branding,
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ], 'cuztomisable');
         $this->publishes([
@@ -108,11 +113,9 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->publishes([
             ...$framework,
             ...$pages,
-            ...$branding,
         ], 'cuztomisable-assets');
         $this->publishes($framework, 'cuztomisable-framework');
         $this->publishes($pages, 'cuztomisable-pages');
-        $this->publishes($branding, 'cuztomisable-branding');
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ], 'cuztomisable-migrations');

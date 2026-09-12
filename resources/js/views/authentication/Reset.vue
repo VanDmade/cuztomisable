@@ -3,11 +3,13 @@
         <div class="auth-card">
             <div class="auth-card__header">
                 <img :src="$url+'logo.png'" class="auth-card__logo">
-                <h1 class="auth-card__title">Reset Password</h1>
-                <p class="auth-card__subtitle">
-                    <span v-if="!verifiedCode">The code was sent to your email address</span>
-                    <span v-else>Enter your new password</span>
-                </p>
+                <div class="auth-card__header-text">
+                    <h1 class="auth-card__title">Reset Password</h1>
+                    <p class="auth-card__subtitle">
+                        <span v-if="!verifiedCode">The code was sent to your email address</span>
+                        <span v-else>Enter your new password</span>
+                    </p>
+                </div>
             </div>
             <cz-form v-if="!verifiedCode" ref="codeForm" class="auth-card__form" :form="form" @save="verify(true)">
                 <cz-input
